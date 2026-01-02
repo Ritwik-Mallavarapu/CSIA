@@ -75,23 +75,33 @@ export function ManualViewer() {
             </div>
           </div>
 
-          <div className="prose max-w-none">
-            <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">
-              {selectedManual.content}
+          {selectedManual.pdfUrl ? (
+            <div className="mt-6">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900">PDF Manual</h3>
+                <a
+                  href={selectedManual.pdfUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
+                >
+                  <FileText className="w-5 h-5" />
+                  Open in New Tab
+                </a>
+              </div>
+              <div className="border border-gray-300 rounded-lg overflow-hidden">
+                <iframe
+                  src={selectedManual.pdfUrl}
+                  className="w-full h-[800px]"
+                  title={selectedManual.title}
+                />
+              </div>
             </div>
-          </div>
-
-          {selectedManual.pdfUrl && (
-            <div className="mt-8 pt-8 border-t border-gray-200">
-              <a
-                href={selectedManual.pdfUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
-              >
-                <FileText className="w-5 h-5" />
-                View PDF Manual
-              </a>
+          ) : (
+            <div className="prose max-w-none">
+              <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">
+                {selectedManual.content}
+              </div>
             </div>
           )}
         </div>

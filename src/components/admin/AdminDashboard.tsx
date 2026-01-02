@@ -1,17 +1,19 @@
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { LogOut, FileText, BookOpen, MessageSquare } from 'lucide-react';
+import { LogOut, FileText, BookOpen, MessageSquare, BarChart3 } from 'lucide-react';
 import { QuizManagement } from './QuizManagement';
 import { ManualManagement } from './ManualManagement';
 import { FeedbackManagement } from './FeedbackManagement';
+import { Analytics } from './Analytics';
 
-type Tab = 'quizzes' | 'manuals' | 'feedback';
+type Tab = 'quizzes' | 'manuals' | 'feedback' | 'analytics';
 
 export function AdminDashboard() {
   const { user, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<Tab>('quizzes');
+  const [activeTab, setActiveTab] = useState<Tab>('analytics');
 
   const tabs = [
+    { id: 'analytics' as Tab, label: 'Analytics', icon: BarChart3 },
     { id: 'quizzes' as Tab, label: 'Quiz Management', icon: FileText },
     { id: 'manuals' as Tab, label: 'Manual Management', icon: BookOpen },
     { id: 'feedback' as Tab, label: 'Feedback Review', icon: MessageSquare },
@@ -62,6 +64,7 @@ export function AdminDashboard() {
           </div>
 
           <div className="p-6">
+            {activeTab === 'analytics' && <Analytics />}
             {activeTab === 'quizzes' && <QuizManagement />}
             {activeTab === 'manuals' && <ManualManagement />}
             {activeTab === 'feedback' && <FeedbackManagement />}

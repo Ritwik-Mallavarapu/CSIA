@@ -503,7 +503,7 @@ class ApiService {
     const filePath = `${fileName}`;
 
     const { error: uploadError } = await supabase.storage
-      .from('manual-pdfs')
+      .from('manuals')
       .upload(filePath, file, {
         cacheControl: '3600',
         upsert: false,
@@ -514,7 +514,7 @@ class ApiService {
     }
 
     const { data: { publicUrl } } = supabase.storage
-      .from('manual-pdfs')
+      .from('manuals')
       .getPublicUrl(filePath);
 
     return publicUrl;
@@ -525,7 +525,7 @@ class ApiService {
     const fileName = urlParts[urlParts.length - 1];
 
     const { error } = await supabase.storage
-      .from('manual-pdfs')
+      .from('manuals')
       .remove([fileName]);
 
     if (error) {
@@ -822,6 +822,77 @@ class ApiService {
         comment: comment.comment,
         createdAt: comment.created_at,
       })),
+    };
+  }
+
+  async getQuizAnalytics() {
+    const { data: attempts, error } = await supabase
+      .from('quiz_attempts')
+      .select(`
+        *,
+        quizzes!quiz_attempts_quiz_id_fkey (title),
+        profiles!quiz_attempts_user_id_fkey (username, full_name)
+      `)
+      .order('completed_at', { ascending: false });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    const quizStats = new Map<string, { title: string; attempts: number; totalScore: number; totalPoints: number }>();
+    const userStats = new Map<string, { userId: string; userName: string; attempts: number; totalScore: number; totalPoints: number }>();
+
+    attempts.forEach((attempt: {
+      quiz_id: string;
+      user_id: string;
+      score: number;
+      total_points: number;
+      quizzes: { title: string } | null;
+      profiles: { username: string; full_name: string } | null;
+    }) => {
+      const quizId = attempt.quiz_id;
+      const quizTitle = attempt.quizzes?.title || 'Unknown Quiz';
+
+      if (!quizStats.has(quizId)) {
+        quizStats.set(quizId, { title: quizTitle, attempts: 0, totalScore: 0, totalPoints: 0 });
+      }
+      const quizStat = quizStats.get(quizId)!;
+      quizStat.attempts++;
+      quizStat.totalScore += attempt.score;
+      quizStat.totalPoints += attempt.total_points;
+
+      const userId = attempt.user_id;
+      const userName = attempt.profiles?.full_name || attempt.profiles?.username || 'Unknown User';
+
+      if (!userStats.has(userId)) {
+        userStats.set(userId, { userId, userName, attempts: 0, totalScore: 0, totalPoints: 0 });
+      }
+      const userStat = userStats.get(userId)!;
+      userStat.attempts++;
+      userStat.totalScore += attempt.score;
+      userStat.totalPoints += attempt.total_points;
+    });
+
+    const quizAnalytics = Array.from(quizStats.values()).map(stat => ({
+      quizTitle: stat.title,
+      attempts: stat.attempts,
+      averageScore: stat.attempts > 0 ? Math.round((stat.totalScore / stat.totalPoints) * 100) : 0,
+    }));
+
+    const topTrainees = Array.from(userStats.values())
+      .map(stat => ({
+        userId: stat.userId,
+        userName: stat.userName,
+        attempts: stat.attempts,
+        averageScore: stat.attempts > 0 ? Math.round((stat.totalScore / stat.totalPoints) * 100) : 0,
+      }))
+      .sort((a, b) => b.averageScore - a.averageScore)
+      .slice(0, 10);
+
+    return {
+      totalAttempts: attempts.length,
+      quizAnalytics,
+      topTrainees,
     };
   }
 }
