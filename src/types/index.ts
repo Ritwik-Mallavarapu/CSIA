@@ -29,6 +29,7 @@ export interface QuestionOption {
   id: number;
   questionId: number;
   optionText: string;
+  isCorrect?: boolean;
 }
 
 export interface QuizAttempt {

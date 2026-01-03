@@ -188,7 +188,8 @@ class ApiService {
             .sort((a: { order_index: number }, b: { order_index: number }) => a.order_index - b.order_index)
             .map((opt: { id: string; option_text: string; is_correct: boolean }) => ({
               id: opt.id,
-              text: opt.option_text,
+              questionId: q.id,
+              optionText: opt.option_text,
               isCorrect: opt.is_correct,
             })),
           correctOptionId: (q.question_options || []).find((opt: { is_correct: boolean }) => opt.is_correct)?.id,
@@ -241,7 +242,8 @@ class ApiService {
         .sort((a: { order_index: number }, b: { order_index: number }) => a.order_index - b.order_index)
         .map((opt: { id: string; option_text: string; is_correct: boolean }) => ({
           id: opt.id,
-          text: opt.option_text,
+          questionId: q.id,
+          optionText: opt.option_text,
           isCorrect: opt.is_correct,
         })),
       correctOptionId: (q.question_options || []).find((opt: { is_correct: boolean }) => opt.is_correct)?.id,
@@ -302,7 +304,7 @@ class ApiService {
 
       const optionsToInsert = question.options.map((opt, idx) => ({
         question_id: newQuestion.id,
-        option_text: opt.text,
+        option_text: opt.optionText,
         is_correct: opt.isCorrect,
         order_index: idx,
       }));
@@ -364,7 +366,7 @@ class ApiService {
 
         const optionsToInsert = question.options.map((opt, idx) => ({
           question_id: newQuestion.id,
-          option_text: opt.text,
+          option_text: opt.optionText,
           is_correct: opt.isCorrect,
           order_index: idx,
         }));
