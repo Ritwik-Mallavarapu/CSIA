@@ -499,29 +499,6 @@ class ApiService {
     }));
   }
 
-  async getQuizAttemptsForUser(quizId: string, userId: string): Promise<QuizAttempt[]> {
-    const { data, error } = await supabase
-      .from('quiz_attempts')
-      .select('*')
-      .eq('quiz_id', quizId)
-      .eq('user_id', userId)
-      .order('completed_at', { ascending: false });
-
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    return data.map(attempt => ({
-      id: attempt.id,
-      quizId: attempt.quiz_id,
-      userId: attempt.user_id,
-      score: attempt.score,
-      totalPoints: attempt.total_points,
-      completedAt: attempt.completed_at,
-      answers: [],
-    }));
-  }
-
   async uploadPDF(file: File, manualId: string): Promise<string> {
     const fileExt = file.name.split('.').pop();
     const fileName = `${manualId}-${Date.now()}.${fileExt}`;
