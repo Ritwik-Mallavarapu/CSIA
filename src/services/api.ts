@@ -305,7 +305,7 @@ class ApiService {
       const optionsToInsert = question.options.map((opt, idx) => ({
         question_id: newQuestion.id,
         option_text: opt.optionText,
-        is_correct: opt.isCorrect,
+        is_correct: opt.id === question.correctOptionId,
         order_index: idx,
       }));
 
@@ -367,7 +367,7 @@ class ApiService {
         const optionsToInsert = question.options.map((opt, idx) => ({
           question_id: newQuestion.id,
           option_text: opt.optionText,
-          is_correct: opt.isCorrect,
+          is_correct: opt.id === question.correctOptionId,
           order_index: idx,
         }));
 
